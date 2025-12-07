@@ -4,6 +4,7 @@ import { HttpYacExtensionApi } from './extensionApi';
 import { initIOProvider, StorageProvider } from './io';
 import * as provider from './provider';
 import { ResponseStore } from './responseStore';
+import { UIController } from './ui';
 import * as httpyac from 'httpyac';
 import * as vscode from 'vscode';
 
@@ -42,6 +43,7 @@ export function activate(context: vscode.ExtensionContext): HttpYacExtensionApi 
         new provider.HttpDocumentSymbolProvider(documentStore)
       ),
       storageProvider,
+      new UIController(documentStore, responseStore),
     ]
   );
   vscode.commands.executeCommand(

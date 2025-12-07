@@ -1053,6 +1053,36 @@
           "scope": "window",
           "description": "repeat times of test run",
           "default": 1
+        },
+        "httpyac.ui.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Enable the REST Client UI panel"
+        },
+        "httpyac.ui.rootFolder": {
+          "type": "string",
+          "default": ".rest",
+          "scope": "resource",
+          "description": "Root folder for storing collections and requests"
+        },
+        "httpyac.ui.autoSave": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Automatically save requests when modified"
+        },
+        "httpyac.ui.autoSaveDelay": {
+          "type": "number",
+          "default": 300,
+          "scope": "window",
+          "description": "Delay in milliseconds before auto-saving (debounce)"
+        },
+        "httpyac.ui.showMethodBadges": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "Show HTTP method badges in the collections tree"
         }
       }
     },
@@ -1190,6 +1220,71 @@
         "title": "clears all output channel",
         "category": "httpYac",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "httpyac.ui.newRequest",
+        "title": "New Request",
+        "category": "REST Client",
+        "icon": "$(add)"
+      },
+      {
+        "command": "httpyac.ui.newCollection",
+        "title": "New Collection",
+        "category": "REST Client",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "httpyac.ui.deleteItem",
+        "title": "Delete",
+        "category": "REST Client",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "httpyac.ui.renameItem",
+        "title": "Rename",
+        "category": "REST Client",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "httpyac.ui.duplicateRequest",
+        "title": "Duplicate Request",
+        "category": "REST Client",
+        "icon": "$(files)"
+      },
+      {
+        "command": "httpyac.ui.refreshCollections",
+        "title": "Refresh Collections",
+        "category": "REST Client",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "httpyac.ui.sendRequest",
+        "title": "Send Request",
+        "category": "REST Client",
+        "icon": "$(debug-start)"
+      },
+      {
+        "command": "httpyac.ui.openInEditor",
+        "title": "Open in Editor",
+        "category": "REST Client",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "httpyac.ui.openRequest",
+        "title": "Open Request",
+        "category": "REST Client"
+      },
+      {
+        "command": "httpyac.ui.importCollection",
+        "title": "Import Collection",
+        "category": "REST Client",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "httpyac.ui.exportCollection",
+        "title": "Export Collection",
+        "category": "REST Client",
+        "icon": "$(cloud-upload)"
       }
     ],
     "menus": {
@@ -1362,6 +1457,21 @@
           "command": "httpyac.reset",
           "when": "view == httpyacVariables || view == httpyacSession",
           "group": "navigation"
+        },
+        {
+          "command": "httpyac.ui.newRequest",
+          "when": "view == httpyacCollections",
+          "group": "navigation@1"
+        },
+        {
+          "command": "httpyac.ui.newCollection",
+          "when": "view == httpyacCollections",
+          "group": "navigation@2"
+        },
+        {
+          "command": "httpyac.ui.refreshCollections",
+          "when": "view == httpyacCollections",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
@@ -1389,6 +1499,46 @@
           "command": "httpyac.copyToClipboard",
           "when": "view == httpyacEnvironments",
           "group": "inline"
+        },
+        {
+          "command": "httpyac.ui.sendRequest",
+          "when": "view == httpyacCollections && viewItem == 'request'",
+          "group": "inline@1"
+        },
+        {
+          "command": "httpyac.ui.openInEditor",
+          "when": "view == httpyacCollections && viewItem == 'request'",
+          "group": "inline@2"
+        },
+        {
+          "command": "httpyac.ui.newRequest",
+          "when": "view == httpyacCollections && viewItem == 'collection'",
+          "group": "1_add@1"
+        },
+        {
+          "command": "httpyac.ui.newCollection",
+          "when": "view == httpyacCollections && viewItem == 'collection'",
+          "group": "1_add@2"
+        },
+        {
+          "command": "httpyac.ui.duplicateRequest",
+          "when": "view == httpyacCollections && viewItem == 'request'",
+          "group": "2_edit@1"
+        },
+        {
+          "command": "httpyac.ui.renameItem",
+          "when": "view == httpyacCollections",
+          "group": "2_edit@2"
+        },
+        {
+          "command": "httpyac.ui.deleteItem",
+          "when": "view == httpyacCollections",
+          "group": "3_delete@1"
+        },
+        {
+          "command": "httpyac.ui.exportCollection",
+          "when": "view == httpyacCollections && viewItem == 'collection'",
+          "group": "4_export@1"
         }
       ]
     },
@@ -1461,6 +1611,10 @@
       {
         "view": "httpyacDebug",
         "contents": "no HttpFile Object"
+      },
+      {
+        "view": "httpyacCollections",
+        "contents": "No collections found.\n[Create Collection](command:httpyac.ui.newCollection)\n[Import Collection](command:httpyac.ui.importCollection)"
       }
     ],
     "viewsContainers": {
@@ -1469,10 +1623,22 @@
           "id": "httpyac-views",
           "title": "httpyac",
           "icon": "icon.svg"
+        },
+        {
+          "id": "httpyac-client",
+          "title": "REST Client",
+          "icon": "icon.svg"
         }
       ]
     },
     "views": {
+      "httpyac-client": [
+        {
+          "id": "httpyacCollections",
+          "name": "Collections",
+          "visibility": "visible"
+        }
+      ],
       "httpyac-views": [
         {
           "id": "httpyacHistory",

@@ -6,7 +6,7 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"${workspaceFolder:httpyac.github.io}",
+				"${workspaceFolder}/examples",
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
 			"outFiles": [
@@ -18,12 +18,11 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"${workspaceFolder:httpyac.github.io}",
+				"${workspaceFolder}/examples",
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
 			"outFiles": [
-				"${workspaceFolder}/dist/**/*.js",
-				"${workspaceFolder:httpyac}/dist/**/*.js"
+				"${workspaceFolder}/dist/**/*.js"
 			]
 		}
 	]

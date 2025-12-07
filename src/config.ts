@@ -50,6 +50,14 @@ export interface ResourceConfig {
   useRegionScopedVariables?: boolean;
 }
 
+export interface UIConfig {
+  enabled?: boolean;
+  rootFolder?: string;
+  autoSave?: boolean;
+  autoSaveDelay?: number;
+  showMethodBadges?: boolean;
+}
+
 export interface AppConfig {
   environmentSelectedOnStart?: Array<string>;
   environmentUseSameForAllFiles?: boolean;
@@ -112,12 +120,24 @@ export interface AppConfig {
   testRunAlwaysUseEnv?: Array<string>;
   testRunRepeatTimes?: number;
   logResetOutputchannel?: boolean;
+  ui?: UIConfig;
 }
 
 export function getConfigSetting(): AppConfig {
   const result: AppConfig = {};
   Object.assign(result, vscode.workspace.getConfiguration(APP_NAME));
   return result;
+}
+
+export function getUIConfig(): UIConfig {
+  const config = vscode.workspace.getConfiguration(`${APP_NAME}.ui`);
+  return {
+    enabled: config.get<boolean>('enabled', true),
+    rootFolder: config.get<string>('rootFolder', '.rest'),
+    autoSave: config.get<boolean>('autoSave', true),
+    autoSaveDelay: config.get<number>('autoSaveDelay', 300),
+    showMethodBadges: config.get<boolean>('showMethodBadges', true),
+  };
 }
 
 export function getResourceConfig(fileName: httpyac.PathLike): ResourceConfig {
